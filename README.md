@@ -1,5 +1,7 @@
 # GetSub
 
+[![codecov](https://codecov.io/gh/gyh1621/GetSubtitles/branch/refactor/graph/badge.svg)](https://codecov.io/gh/gyh1621/GetSubtitles)
+
 
 
 用getsub一步下载字幕。
