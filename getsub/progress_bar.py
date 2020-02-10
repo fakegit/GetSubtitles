@@ -1,16 +1,7 @@
 # coding: utf-8
 
-from __future__ import print_function
-from __future__ import division
 from time import sleep
-
-from .sys_global_var import py
-
-if py == 2:
-    from backports.shutil_get_terminal_size.get_terminal_size \
-         import get_terminal_size
-else:
-    from shutil import get_terminal_size
+from shutil import get_terminal_size
 
 
 class ProgressBar(object):

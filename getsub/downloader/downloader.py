@@ -6,8 +6,6 @@ import sys
 from guessit import guessit
 from requests.utils import quote
 
-from getsub.sys_global_var import py
-
 
 class Downloader(object):
 
@@ -57,29 +55,14 @@ class Downloader(object):
 
         # 若视频名中英混合，去掉字少的语言
         title = info_dict['title']
-        if py == 2:
-            if sys.stdout.encoding == 'cp936':
-                encoding = 'gbk'
-            else:
-                encoding = 'utf8'
-            title = title.decode(encoding)
-            c_pattern = u'[\u4e00-\u9fff]'
-            e_pattern = u'[a-zA-Z]'
-            c_num = len(re.findall(c_pattern, title))
-            e_num = len(re.findall(e_pattern, title))
-            if c_num > e_num:
-                title = re.sub(e_pattern, '', title).encode('utf8')
-            else:
-                title = re.sub(c_pattern, '', title).encode('utf8')
-        elif py == 3:
-            c_pattern = '[\u4e00-\u9fff]'
-            e_pattern = '[a-zA-Z]'
-            c_num = len(re.findall(c_pattern, title))
-            e_num = len(re.findall(e_pattern, title))
-            if c_num > e_num:
-                title = re.sub(e_pattern, '', title)
-            else:
-                title = re.sub(c_pattern, '', title)
+        c_pattern = '[\u4e00-\u9fff]'
+        e_pattern = '[a-zA-Z]'
+        c_num = len(re.findall(c_pattern, title))
+        e_num = len(re.findall(e_pattern, title))
+        if c_num > e_num:
+            title = re.sub(e_pattern, '', title)
+        else:
+            title = re.sub(c_pattern, '', title)
         title = title.strip()
 
         base_keyword = title

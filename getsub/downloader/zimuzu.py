@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import print_function
 from collections import OrderedDict as order_dict
 from contextlib import closing
 import json
@@ -9,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from getsub.downloader.downloader import Downloader
-from getsub.sys_global_var import py, prefix
+from getsub.sys_global_var import prefix
 from getsub.progress_bar import ProgressBar
 
 
@@ -39,19 +38,17 @@ class ZimuzuDownloader(Downloader):
                       headers=Downloader.header, timeout=10)
             bs_obj = BeautifulSoup(r.text, 'html.parser')
             tab_text = bs_obj.find('div', {'class': 'article-tab'}).text
-            tab_text = tab_text.encode('utf8') if py == 2 else tab_text
             if '字幕(0)' not in tab_text:
                 for one_box in bs_obj.find_all('div',
                                                {'class': 'search-item'}):
                     sub_name = ZimuzuDownloader.choice_prefix + \
                         one_box.find('strong', {'class': 'list_title'}).text
-                    sub_name = sub_name.encode('utf8') if py == 2 else sub_name
 
                     if info_dict['type'] == 'movie' and '美剧字幕' in sub_name:
                         continue
 
                     a = one_box.find('a')
-                    text = a.text.encode('utf8') if py == 2 else a.text
+                    text = a.text
                     sub_url = ZimuzuDownloader.site_url + a.attrs['href']
                     type_score = 0
                     type_score += ('英文' in text) * 1

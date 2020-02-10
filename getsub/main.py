@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import print_function
 import os
 import re
 import sys
@@ -17,7 +16,7 @@ from requests import exceptions
 from requests.utils import quote
 
 from getsub.__version__ import __version__
-from getsub.sys_global_var import py, prefix
+from getsub.sys_global_var import prefix
 from getsub.py7z import Py7z
 from getsub.downloader import DownloaderManager
 
@@ -155,9 +154,6 @@ class GetSubtitles(object):
             lang_info += '【英】' if 1 & sub_dict[key]['lan'] else '      '
             lang_info += '【双】' if 8 & sub_dict[key]['lan'] else '      '
             a_sub_info = ' %3s) %s  %s' % (i + 1, lang_info, key)
-            if py == 2:
-                a_sub_info = a_sub_info.decode('utf8')
-                a_sub_info = a_sub_info.encode(GetSubtitles.output_encode)
             a_sub_info = prefix + a_sub_info
             print(a_sub_info)
 
@@ -167,10 +163,7 @@ class GetSubtitles(object):
         while not choices:
             try:
                 print(prefix)
-                if py == 2:
-                    choices = raw_input(prefix + '  choose subtitle: ')
-                else:
-                    choices = input(prefix + '  choose subtitle: ')
+                choices = input(prefix + '  choose subtitle: ')
                 choices = [int(c) for c in re.split(',|，', choices)]
             except ValueError:
                 print(prefix + '  Error: only numbers accepted')
@@ -232,9 +225,6 @@ class GetSubtitles(object):
                 # 电影年份不匹配
                 continue
 
-            if py == 2 and isinstance(video_name, str):
-                video_name = video_name.decode(
-                    chardet.detect(video_name)['encoding'])
             if video_name == sub_title:
                 if not (season == sub_season and episode == sub_episode):
                     continue  # 名字匹配，剧集不匹配
@@ -246,31 +236,14 @@ class GetSubtitles(object):
                 score[-1] -= 2
                 continue  # 名字剧集都不匹配
 
-            try:
-                if '简体' in one_sub or 'chs' in one_sub or '.gb.' in one_sub:
-                    score[-1] += 5
-                if '繁体' in one_sub or 'cht' in one_sub or '.big5.' in one_sub:
-                    score[-1] += 3
-                if 'chs.eng' in one_sub or 'chs&eng' in one_sub:
-                    score[-1] += 7
-                if '中英' in one_sub or '简英' in one_sub or '双语' in one_sub or '简体&英文' in one_sub:
-                    score[-1] += 9
-            # py2 strange decode error, happens time to time
-            except UnicodeDecodeError:
-                if '简体'.decode('utf8') in one_sub \
-                        or 'chs' in one_sub or '.gb.' in one_sub:
-                    score[-1] += 5
-                if '繁体'.decode('utf8') in one_sub \
-                        or 'cht' in one_sub or '.big5.' in one_sub:
-                    score[-1] += 3
-                if 'chs.eng'.decode('utf8') in one_sub \
-                        or 'chs&eng' in one_sub:
-                    score[-1] += 7
-                if '中英'.decode('utf8') in one_sub \
-                        or '简英'.decode('utf8') in one_sub \
-                        or '双语'.decode('utf8') in one_sub \
-                        or '简体&英文'.decode('utf8') in one_sub:
-                    score[-1] += 9
+            if '简体' in one_sub or 'chs' in one_sub or '.gb.' in one_sub:
+                score[-1] += 5
+            if '繁体' in one_sub or 'cht' in one_sub or '.big5.' in one_sub:
+                score[-1] += 3
+            if 'chs.eng' in one_sub or 'chs&eng' in one_sub:
+                score[-1] += 7
+            if '中英' in one_sub or '简英' in one_sub or '双语' in one_sub or '简体&英文' in one_sub:
+                score[-1] += 9
 
             score[-1] += ('ass' in one_sub or 'ssa' in one_sub) * 2
             score[-1] += ('srt' in one_sub) * 1
@@ -356,24 +329,7 @@ class GetSubtitles(object):
                 except:
                     pass
                 info = ' %3s)  %s' % (str(i+1), single_subtitle)
-                if py == 2:
-                    try:
-                        if isinstance(single_subtitle, str):
-                            encoding = chardet.detect(
-                                single_subtitle)['encoding']
-                            if 'ISO' in encoding:
-                                encoding = 'gbk'
-                            output = prefix + info.decode(encoding).\
-                                encode(GetSubtitles.output_encode)
-                            print(output)
-                        else:
-                            info = info.encode(GetSubtitles.output_encode)
-                            print(prefix + info)
-                    except:
-                        print(prefix +
-                              ' %3s)  %s' % (str(i+1), 'unknown file'))
-                else:
-                    print(prefix + info)
+                print(prefix + info)
 
             indexes = range(len(sub_lists_dict.keys()))
             choice = None
@@ -397,23 +353,7 @@ class GetSubtitles(object):
         v_name_without_format = os.path.splitext(v_name)[0]
         # video_name + sub_type
         to_extract_types = []
-        if py == 2:
-            possible_handlers = [
-                "sub_name.encode('utf8')",
-                "sub_name.decode('utf8')",
-                "sub_name"
-            ]
-            for h_index, handler in enumerate(possible_handlers):
-                try:
-                    sub_title, sub_type = os.path.splitext(eval(handler))
-                    break
-                except Exception as e:
-                    if h_index == len(possible_handlers) - 1:
-                        raise e
-                    else:
-                        continue
-        else:
-            sub_title, sub_type = os.path.splitext(sub_name)
+        sub_title, sub_type = os.path.splitext(sub_name)
         to_extract_subs = [[sub_name, sub_type]]
         if both:
             another_sub_type = '.srt' if sub_type == '.ass' else '.ass'
@@ -463,21 +403,6 @@ class GetSubtitles(object):
                 extract_sub_names: list
         """
         message = ''
-        if py == 2:
-            encoding = chardet.detect(sub_choice)['encoding']
-            if isinstance(sub_choice, str):
-                sub_choice = sub_choice.decode(encoding)
-            try:
-                sub_choice = sub_choice.encode(
-                    GetSubtitles.output_encode
-                )
-            except:
-                if isinstance(sub_choice, str):
-                    sub_choice = sub_choice.encode(encoding)
-                sub_choice = sub_choice.decode('utf8')
-                sub_choice = sub_choice.encode(
-                    GetSubtitles.output_encode
-                )
         if self.query:
             print(prefix + ' ')
         choice_prefix = sub_choice[:sub_choice.find(']') + 1]
@@ -509,24 +434,6 @@ class GetSubtitles(object):
             except:
                 pass
             try:
-                if py == 2:
-                    if isinstance(extract_sub_name, str):
-                        encoding = chardet. \
-                            detect(extract_sub_name)
-                        encoding = encoding['encoding']
-                        # reason of adding windows-1251 check:
-                        # using ZIMUZU downloader
-                        # I.Robot.2004.1080p.Bluray.x264.DTS-DEFiNiTE.mkv
-                        if 'ISO' in encoding \
-                                or "windows-1251" in encoding:
-                            encoding = 'gbk'
-                        extract_sub_name = extract_sub_name. \
-                            decode(encoding)
-                        extract_sub_name = extract_sub_name. \
-                            encode(GetSubtitles.output_encode)
-                    else:
-                        extract_sub_name = extract_sub_name. \
-                            encode(GetSubtitles.output_encode)
                 print(prefix + ' ' + extract_sub_name)
             except UnicodeDecodeError:
                 print(prefix + ' '

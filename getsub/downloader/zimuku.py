@@ -1,10 +1,6 @@
 # coding: utf-8
 
-from __future__ import print_function
-try:
-    from urllib.parse import urljoin
-except ImportError:
-    from urlparse import urljoin
+from urllib.parse import urljoin
 from contextlib import closing
 from collections import OrderedDict as order_dict
 
@@ -13,7 +9,7 @@ from bs4 import BeautifulSoup
 from guessit import guessit
 
 from getsub.downloader.downloader import Downloader
-from getsub.sys_global_var import py, prefix
+from getsub.sys_global_var import prefix
 from getsub.progress_bar import ProgressBar
 
 
@@ -49,10 +45,7 @@ class ZimukuDownloader(Downloader):
         while True:
             # 当前关键字搜索
             r = s.get(ZimukuDownloader.search_url + keyword, timeout=10)
-            if py == 2:
-                html = r.text.encode('utf8')
-            else:
-                html = r.text
+            html = r.text
 
             if '搜索不到相关字幕' not in html:
                 bs_obj = BeautifulSoup(r.text, 'html.parser')
@@ -64,12 +57,8 @@ class ZimukuDownloader(Downloader):
                             'div', {'class': 'title'}).find_all('p')
                         title_box = title_boxes[0]
                         sub_title_box = title_boxes[1]
-                        if py == 2:
-                            item_title = title_box.text.encode('utf8')
-                            item_sub_title = sub_title_box.text.encode('utf8')
-                        else:
-                            item_title = title_box.text
-                            item_sub_title = sub_title_box.text
+                        item_title = title_box.text
+                        item_sub_title = sub_title_box.text
                         item_info = guessit(item_title)
                         if info.get('year') and item_info.get('year'):
                             if info['year'] != item_info['year']:
@@ -100,20 +89,14 @@ class ZimukuDownloader(Downloader):
                             a = a.a
                             a_link = ZimukuDownloader.site_url + \
                                 a.attrs['href']
-                            if py == 2:
-                                a_title = a.text.encode('utf8')
-                            else:
-                                a_title = a.text
+                            a_title = a.text
                             a_title = ZimukuDownloader.choice_prefix + a_title
                             sub_dict[a_title] = {'type': 'default',
                                                  'link': a_link}
                 elif bs_obj.find('div', {'class': 'persub'}):
                     # 射手字幕页面
                     for persub in bs_obj.find_all('div', {'class': 'persub'}):
-                        if py == 2:
-                            a_title = persub.h1.text.encode('utf8')
-                        else:
-                            a_title = persub.h1.text
+                        a_title = persub.h1.text
                         a_link = ZimukuDownloader.site_url + \
                             persub.h1.a.attrs['href']
                         a_title = ZimukuDownloader.choice_prefix + a_title
@@ -165,10 +148,7 @@ class ZimukuDownloader(Downloader):
                 bs_obj = BeautifulSoup(r.text, 'html.parser')
                 lang_box = bs_obj.find('ul', {'class': 'subinfo'}).find('li')
                 type_score = 0
-                if py == 2:
-                    text = lang_box.text.encode('utf8')
-                else:
-                    text = lang_box.text
+                text = lang_box.text
                 if '英' in text:
                     type_score += 1
                 elif '繁' in text:

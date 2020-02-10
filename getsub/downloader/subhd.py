@@ -1,6 +1,5 @@
 # coding: utf-8
 
-from __future__ import print_function
 import time
 import json
 import re
@@ -11,7 +10,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from getsub.downloader.downloader import Downloader
-from getsub.sys_global_var import py, prefix
+from getsub.sys_global_var import prefix
 from getsub.progress_bar import ProgressBar
 
 
@@ -41,10 +40,7 @@ class SubHDDownloader(Downloader):
                       headers=Downloader.header, timeout=10)
             bs_obj = BeautifulSoup(r.text, 'html.parser')
             try:
-                if py == 2:
-                    small_text = bs_obj.find('small').text.encode('utf8')
-                else:
-                    small_text = bs_obj.find('small').text
+                small_text = bs_obj.find('small').text
             except AttributeError as e:
                 char_error = 'The URI you submitted has disallowed characters'
                 if char_error in bs_obj.text:
@@ -67,12 +63,8 @@ class SubHDDownloader(Downloader):
 
                     a = one_box.find('div', class_="f12 pt-1").find('a')
                     sub_url = SubHDDownloader.site_url + a.attrs['href']
-                    sub_name = SubHDDownloader.choice_prefix + a.text.encode('utf8') if py == 2 \
-                        else SubHDDownloader.choice_prefix + a.text
-                    if py == 2:
-                        text = one_box.text.encode('utf8')
-                    else:
-                        text = one_box.text
+                    sub_name =  SubHDDownloader.choice_prefix + a.text
+                    text = one_box.text
                     if '/a' in a.attrs['href']:
                         type_score = 0
                         type_score += ('英文' in text) * 1
