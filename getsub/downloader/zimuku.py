@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup
 from guessit import guessit
 
 from getsub.downloader.downloader import Downloader
-from getsub.sys_global_var import prefix
+from getsub.constants import PREFIX
 from getsub.progress_bar import ProgressBar
 
 
@@ -26,7 +26,7 @@ class ZimukuDownloader(Downloader):
 
     def get_subtitles(self, video_name, sub_num=10):
 
-        print(prefix + ' Searching ZIMUKU...', end='\r')
+        print(PREFIX + ' Searching ZIMUKU...', end='\r')
 
         keywords, info_dict = Downloader.get_keywords(video_name)
         keyword = ' '.join(keywords)
@@ -186,7 +186,7 @@ class ZimukuDownloader(Downloader):
                 chunk_size = 1024  # 单次请求最大值
                 # 内容体总大小
                 content_size = int(response.headers['content-length'])
-                bar = ProgressBar(prefix + ' Get',
+                bar = ProgressBar(PREFIX + ' Get',
                                   file_name.strip(), content_size)
                 sub_data_bytes = b''
                 for data in response.iter_content(chunk_size=chunk_size):
